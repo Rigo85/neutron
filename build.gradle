@@ -12,7 +12,7 @@
 
 allprojects {
     group 'org.games'
-    version '1.0-SNAPSHOT'
+    version '0.1'
     apply plugin: 'java'
 
     repositories {
@@ -36,6 +36,26 @@ project(':core') {
     sourceCompatibility = 1.8
 
     dependencies {
-
+        compile 'com.google.code.gson:gson:2.6.2'
     }
+}
+
+task run(type: JavaExec) {
+    main = "org.games.mvc.NeutronApp"
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Neutron',
+                'Implementation-Version': version,
+                'Main-Class': 'org.games.mvc.NeutronApp'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    with jar
 }

@@ -20,8 +20,8 @@ import org.games.mvc.view.NeutronView;
  * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. Please refer to the
  * AGPL (http:www.gnu.org/licenses/agpl-3.0.txt) for more details.
  */
-public class NeutronApp  extends Application {
-        public static void main(String[] args) {
+public class NeutronApp extends Application {
+    public static void main(String[] args) {
         launch(args);
     }
 
@@ -30,16 +30,13 @@ public class NeutronApp  extends Application {
         NeutronView neutronView = new NeutronView();
         new NeutronPresenter(neutronView);
 
-        Scene scene = new Scene(neutronView, 500, 500);
+        Scene scene = new Scene(neutronView, 700, 500);
         stage.setScene(scene);
         stage.setTitle("Neutron game");
 
         stage.setOnCloseRequest(event -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-                    "Are you sure you want to exit?", ButtonType.YES, ButtonType.CANCEL);
-            Stage stage1 = (Stage) alert.getDialogPane().getScene().getWindow();
-            stage1.getIcons().add(new Image(
-                    getClass().getClassLoader().getResource("images/icon.png").toExternalForm()));
+            final Alert alert = NeutronPresenter.getAlert(ButtonType.YES, ButtonType.CANCEL);
+            alert.setContentText("Are you sure you want to exit?");
             alert.setTitle("Confirmation Dialog");
             alert.showAndWait().filter(b -> b == ButtonType.CANCEL).ifPresent(e -> event.consume());
         });

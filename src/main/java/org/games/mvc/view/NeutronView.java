@@ -3,9 +3,14 @@ package org.games.mvc.view;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import org.games.core.FullMove;
 import org.games.core.NeutronGame;
 
 /**
@@ -20,14 +25,18 @@ import org.games.core.NeutronGame;
  * AGPL (http:www.gnu.org/licenses/agpl-3.0.txt) for more details.
  */
 public class NeutronView extends BorderPane {
-    private final NeutronGame game;
+    NeutronGame game;
     PieceView[][] pieceViews;
+    Label[] chars;
+    Label[] numbers;
     Button[] actions;
     Button newGame;
-     Button saveGame;
-     Button loadGame;
-     Button about;
-     Button info;
+    Button saveGame;
+    Button loadGame;
+    Button settings;
+    Button about;
+    Button info;
+    ListView<FullMove> movesListView;
 
     public NeutronView() {
         this.game = new NeutronGame();
@@ -38,15 +47,26 @@ public class NeutronView extends BorderPane {
 
     private void createCenterPanel(double size) {
         pieceViews = new PieceView[5][5];
-        Updater updater = new Updater(pieceViews);
+        numbers = new Label[5];
+        chars = new Label[5];
+        movesListView = new ListView<>();
         GridPane table = new GridPane();
         table.setPadding(new Insets(5, 5, 5, 5));
+
         for (int row = 0; row < 5; row++) {
-            for (int col = 0; col < 5; col++) {
-                pieceViews[row][col] = new PieceView(game.table[row][col], size / 2.0);
-                new PiecePresenter(row, col, pieceViews[row][col], updater, game);
-                table.add(pieceViews[row][col], col, row);
+            numbers[row] = new Label("", new ImageView(new Image(getClass().getClassLoader()
+                    .getResource(String.format("images/%d.png", 5 - row)).toExternalForm())));
+            table.add(numbers[row], 0, row);
+
+            for (int col = 1; col < 6; col++) {
+                pieceViews[row][col - 1] = new PieceView(game.table[row][col - 1], size / 2.0);
+                new PiecePresenter(row, col - 1, pieceViews[row][col - 1], this);
+                table.add(pieceViews[row][col - 1], col, row);
             }
+
+            chars[row] = new Label("", new ImageView(new Image(getClass().getClassLoader()
+                    .getResource(String.format("images/char%d.png", row + 1)).toExternalForm())));
+            table.add(chars[row], row + 1, 5);
         }
 
         Label l1 = new Label();
@@ -55,7 +75,9 @@ public class NeutronView extends BorderPane {
         l2.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(l1, Priority.ALWAYS);
         HBox.setHgrow(l2, Priority.ALWAYS);
-        HBox hBox = new HBox(l1, table, l2);
+        TitledPane titledPane = new TitledPane("Movements", movesListView);
+        titledPane.setFont(Font.font(null, FontWeight.BOLD, 13));
+        HBox hBox = new HBox(l1, table, titledPane, l2);
 
         Label l3 = new Label();
         l3.setMaxHeight(Double.MAX_VALUE);
@@ -87,31 +109,38 @@ public class NeutronView extends BorderPane {
         imageView3.setPreserveRatio(true);
         loadGame = new Button("", imageView3);
 
-        final ImageView imageView4 = new ImageView(new Image(getClass().getClassLoader().getResource("images/info.png").toExternalForm()));
+        final ImageView imageView4 = new ImageView(new Image(getClass().getClassLoader().getResource("images/settings.png").toExternalForm()));
+        imageView3.setFitHeight(size);
+        imageView3.setFitWidth(size);
+        imageView3.setPreserveRatio(true);
+        settings = new Button("", imageView4);
+
+        final ImageView imageView5 = new ImageView(new Image(getClass().getClassLoader().getResource("images/info.png").toExternalForm()));
         imageView4.setFitHeight(size);
         imageView4.setFitWidth(size);
         imageView4.setPreserveRatio(true);
-        info = new Button("", imageView4);
+        info = new Button("", imageView5);
 
-        final ImageView imageView5 = new ImageView(new Image(getClass().getClassLoader().getResource("images/about.png").toExternalForm()));
+        final ImageView imageView6 = new ImageView(new Image(getClass().getClassLoader().getResource("images/about.png").toExternalForm()));
         imageView5.setFitHeight(size);
         imageView5.setFitWidth(size);
         imageView5.setPreserveRatio(true);
-        about = new Button("", imageView5);
+        about = new Button("", imageView6);
 
-        actions = new Button[5];
+        actions = new Button[6];
         actions[0] = newGame;
         actions[1] = saveGame;
         actions[2] = loadGame;
-        actions[3] = info;
-        actions[4] = about;
+        actions[3] = settings;
+        actions[4] = info;
+        actions[5] = about;
         Label l1 = new Label();
         Label l2 = new Label();
         l1.setMaxWidth(Double.MAX_VALUE);
         l2.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(l1, Priority.ALWAYS);
         HBox.setHgrow(l2, Priority.ALWAYS);
-        HBox toolBar = new HBox(5, l1, newGame, saveGame, loadGame, info, about, l2);
+        HBox toolBar = new HBox(5, l1, newGame, saveGame, loadGame, settings, info, about, l2);
         toolBar.setPadding(new Insets(5, 5, 5, 5));
         this.setTop(toolBar);
     }
